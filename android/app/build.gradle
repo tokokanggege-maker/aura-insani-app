@@ -2,5 +2,12 @@ plugins { id 'com.android.application' }
 
 android { namespace 'com.aurainsani.hgg'; compileSdk 35
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
-    defaultConfig { applicationId 'com.aurainsani.hgg'; minSdk 23; targetSdk 35; versionCode 510; versionName '5.1.0' }
+    defaultConfig { applicationId 'com.aurainsani.hgg'; minSdk 23; targetSdk 35; versionCode 511; versionName '5.1.1' }
+    buildTypes {
+        release {
+            // Signed with the automatically generated Android debug keystore for direct device testing.
+            // A separate private release keystore should be configured before Play Store/public release.
+            signingConfig signingConfigs.debug
+        }
+    }
 }
