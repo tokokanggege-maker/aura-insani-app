@@ -39,7 +39,7 @@ jobs:
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
         with:
-          name: Aura-Insani-Booking-5.1.0-release
+          name: Aura-Insani-Booking-5.1.5-release
           path: |
             android/app/build/outputs/apk/release/*.apk
             android/app/build/outputs/bundle/release/*.aab
