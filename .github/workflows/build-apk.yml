@@ -31,10 +31,20 @@ jobs:
         working-directory: android
         run: gradle --no-daemon assembleRelease
 
-      - name: Rename release APK
+      - name: Locate and rename release APK
+        shell: bash
         run: |
+          set -e
           mkdir -p dist
-          cp android/app/build/outputs/apk/release/app-release.apk dist/Aura-Insani-Booking-5.1.0-release.apk
+          APK=$(find android/app/build/outputs/apk -type f -name '*.apk' | head -n 1)
+          if [ -z "$APK" ]; then
+            echo "APK release tidak ditemukan. Isi folder output:"
+            find android/app/build/outputs -maxdepth 5 -type f -print || true
+            exit 1
+          fi
+          echo "APK ditemukan: $APK"
+          cp "$APK" "dist/Aura-Insani-Booking-5.1.0-release.apk"
+          ls -lh dist/Aura-Insani-Booking-5.1.0-release.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
