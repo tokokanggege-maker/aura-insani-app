@@ -1,14 +1,43 @@
 plugins { id 'com.android.application' }
 
-android { namespace 'com.aurainsani.hgg'; compileSdk 35
-    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
-    defaultConfig { applicationId 'com.aurainsani.hgg'; minSdk 23; targetSdk 35; versionCode 516; versionName '5.1.6' }
+android {
+    namespace 'com.aurainsani.hgg'
+    compileSdk 35
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    defaultConfig {
+        applicationId 'com.aurainsani.hgg'
+        minSdk 23
+        targetSdk 35
+        versionCode 517
+        versionName '5.1.7'
+    }
+
+    signingConfigs {
+        release {
+            def storeFilePath = System.getenv('ANDROID_KEYSTORE_PATH')
+            def storePasswordValue = System.getenv('ANDROID_KEYSTORE_PASSWORD')
+            def keyAliasValue = System.getenv('ANDROID_KEY_ALIAS')
+            def keyPasswordValue = System.getenv('ANDROID_KEY_PASSWORD')
+
+            if (storeFilePath && storePasswordValue && keyAliasValue && keyPasswordValue) {
+                storeFile file(storeFilePath)
+                storePassword storePasswordValue
+                keyAlias keyAliasValue
+                keyPassword keyPasswordValue
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // Sign the release APK for direct device installation.
-            // This uses the CI/debug keystore; suitable for testing/direct installation.
-            // A permanent production signing key should be configured before Play Store release.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            shrinkResources false
         }
     }
 }
