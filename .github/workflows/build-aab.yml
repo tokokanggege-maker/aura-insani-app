@@ -1,0 +1,45 @@
+name: Build Aura Insani AAB
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [build-apk]
+
+jobs:
+  build-aab:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Make Gradle executable
+        working-directory: android
+        run: chmod +x gradlew
+
+      - name: Build release AAB
+        working-directory: android
+        run: ./gradlew bundleRelease
+
+      - name: Locate AAB
+        id: locate
+        run: |
+          AAB=$(find android -type f -name '*.aab' | head -n 1)
+          if [ -z "$AAB" ]; then
+            echo 'No AAB found'
+            exit 1
+          fi
+          echo "aab=$AAB" >> "$GITHUB_OUTPUT"
+          echo "Found: $AAB"
+
+      - name: Upload unsigned/debug-signed AAB for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: Aura-Insani-AAB-build
+          path: ${{ steps.locate.outputs.aab }}
+          if-no-files-found: error
