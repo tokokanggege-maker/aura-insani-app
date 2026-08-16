@@ -27,11 +27,29 @@ jobs:
         with:
           gradle-version: '8.7'
 
-      - name: Build release APK
+      - name: Create CI release signing key
+        shell: bash
+        run: |
+          set -euo pipefail
+          keytool -genkeypair -v \
+            -keystore aura-insani-release.keystore \
+            -storepass 'AuraInsaniBuild2026' \
+            -keypass 'AuraInsaniBuild2026' \
+            -alias aura-insani-release \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname 'CN=Aura Insani, OU=Booking, O=Aura Insani, L=Indonesia, ST=Indonesia, C=ID'
+          test -s aura-insani-release.keystore
+
+      - name: Build properly signed release APK
         working-directory: android
+        env:
+          AURA_KEYSTORE: ${{ github.workspace }}/aura-insani-release.keystore
+          AURA_KEYSTORE_PASSWORD: AuraInsaniBuild2026
         run: gradle --no-daemon :app:assembleRelease
 
-      - name: Verify and prepare APK
+      - name: Verify APK signature and prepare APK
         shell: bash
         run: |
           set -euo pipefail
@@ -43,15 +61,14 @@ jobs:
             exit 1
           fi
           test -s "$APK"
-          echo "APK ditemukan: $APK"
-          ls -lh "$APK"
-          echo "Menyiapkan Aura Insani Booking versi 5.1.5"
-          cp "$APK" "dist/Aura-Insani-Booking-5.1.5-release.apk"
-          ls -lh dist/Aura-Insani-Booking-5.1.5-release.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+          echo "APK terverifikasi ditandatangani dengan release key."
+          cp "$APK" "dist/Aura-Insani-Booking-5.1.6-release.apk"
+          ls -lh dist/Aura-Insani-Booking-5.1.6-release.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Aura-Insani-Booking-5.1.5-release
-          path: dist/Aura-Insani-Booking-5.1.5-release.apk
+          name: Aura-Insani-Booking-5.1.6-release
+          path: dist/Aura-Insani-Booking-5.1.6-release.apk
           if-no-files-found: error
