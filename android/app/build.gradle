@@ -2,5 +2,5 @@ plugins { id 'com.android.application' }
 
 android { namespace 'com.aurainsani.hgg'; compileSdk 35
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
-    defaultConfig { applicationId 'com.aurainsani.hgg'; minSdk 23; targetSdk 35; versionCode 515; versionName '5.1.5' }
+    defaultConfig { applicationId 'com.aurainsani.hgg'; minSdk 23; targetSdk 35; versionCode 516; versionName '5.1.6' }
 }
