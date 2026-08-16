@@ -13,15 +13,29 @@ android {
         applicationId 'com.aurainsani.hgg'
         minSdk 23
         targetSdk 35
-        versionCode 515
-        versionName '5.1.5'
+        versionCode 516
+        versionName '5.1.6'
+    }
+
+    def releaseKeystore = System.getenv('AURA_KEYSTORE')
+    def releasePassword = System.getenv('AURA_KEYSTORE_PASSWORD')
+
+    signingConfigs {
+        release {
+            if (releaseKeystore && releasePassword) {
+                storeFile file(releaseKeystore)
+                storePassword releasePassword
+                keyAlias 'aura-insani-release'
+                keyPassword releasePassword
+            }
+        }
     }
 
     buildTypes {
         release {
-            // Signed with the automatically generated Android debug keystore for direct device testing.
-            // A private release keystore can be configured later for Play public release.
-            signingConfig signingConfigs.debug
+            if (releaseKeystore && releasePassword) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
