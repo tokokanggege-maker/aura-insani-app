@@ -26,22 +26,42 @@ jobs:
         with:
           gradle-version: '8.7'
 
-      - name: Build release APK and AAB
+      - name: Prepare release signing
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ]; then
+            echo "ERROR: ANDROID_KEYSTORE_B64 GitHub Secret belum dikonfigurasi."
+            exit 1
+          fi
+          echo "$KEYSTORE_B64" | base64 --decode > android/release.keystore
+
+      - name: Build signed release APK and AAB
         working-directory: android
+        env:
+          ANDROID_KEYSTORE_PATH: release.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          gradle --no-daemon assembleRelease bundleRelease
+          test -n "$ANDROID_KEYSTORE_PASSWORD"
+          test -n "$ANDROID_KEY_ALIAS"
+          test -n "$ANDROID_KEY_PASSWORD"
+          gradle --no-daemon clean assembleRelease bundleRelease
 
-      - name: Verify artifacts
+      - name: Verify signed APK
         run: |
-          ls -lh android/app/build/outputs/apk/release/
-          ls -lh android/app/build/outputs/bundle/release/
+          APK=$(find android/app/build/outputs/apk/release -name '*.apk' -type f | head -n 1)
+          test -n "$APK"
+          echo "APK: $APK"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
 
-      - name: Upload APK and AAB
+      - name: Upload signed APK and AAB
         uses: actions/upload-artifact@v4
         with:
-          name: Aura-Insani-Booking-5.1.6-release
+          name: Aura-Insani-Booking-5.1.7-release-signed
           path: |
             android/app/build/outputs/apk/release/*.apk
             android/app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30
