@@ -45,6 +45,7 @@ jobs:
           test -s "$APK"
           echo "APK ditemukan: $APK"
           ls -lh "$APK"
+          echo "Menyiapkan Aura Insani Booking versi 5.1.5"
           cp "$APK" "dist/Aura-Insani-Booking-5.1.5-release.apk"
           ls -lh dist/Aura-Insani-Booking-5.1.5-release.apk
 
